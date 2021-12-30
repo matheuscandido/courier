@@ -1,0 +1,7 @@
+data/com.mcandido.Courier.desktop.in
+data/com.mcandido.Courier.appdata.xml.in
+data/com.mcandido.Courier.gschema.xml
+src/window.ui
+src/main.py
+src/window.py
+

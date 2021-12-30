@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="courier">
+	<schema id="com.mcandido.Courier" path="/com/mcandido/Courier/">
+	</schema>
+</schemalist>

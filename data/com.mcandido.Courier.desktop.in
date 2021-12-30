@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=courier
+Exec=courier
+Icon=com.mcandido.Courier
+Terminal=false
+Type=Application
+Categories=GTK;
+StartupNotify=true
