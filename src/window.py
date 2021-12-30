@@ -17,12 +17,72 @@
 
 from gi.repository import Gtk
 
+from .request_panel import RequestPanel
+from .sidebar import Sidebar
 
-@Gtk.Template(resource_path='/com/mcandido/Courier/window.ui')
+DEFAULT_SPACING = 5
+
+METHOD = 0
+NAME = 1
+
+JSON_REQUESTS = (
+    ("GET", "Get Item"),
+    ("POST", "Create Item"),
+    ("PUT", "Change Item"),
+    ("PATCH", "Amend Item"),
+    ("DELETE", "Delete Item")
+)
+
+# @Gtk.Template(resource_path='/com/mcandido/Courier/window.ui')
 class CourierWindow(Gtk.ApplicationWindow):
     __gtype_name__ = 'CourierWindow'
 
-    label = Gtk.Template.Child()
+    #label = Gtk.Template.Child()
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.set_border_width(0)
+        self.set_default_size(800, 600)
+
+        self.header_bar = Gtk.HeaderBar.new()
+        self.setup_header_bar()
+        self.set_titlebar(self.header_bar)
+
+        hpaned = Gtk.Paned.new(Gtk.Orientation.HORIZONTAL)
+        hpaned.set_position(250)
+
+        self.request_panel = RequestPanel()
+        self.sidebar = Sidebar()
+
+        hpaned.pack1(self.sidebar, False, False)
+        hpaned.pack2(self.request_panel, True, False)
+
+        self.add(hpaned)
+        self.set_size_request(225,150)
+        self.show_all()
+
+    def setup_header_bar(self):
+        self.header_bar.set_show_close_button(True)
+        self.header_bar.set_custom_title(self.create_environment_list_component())
+        self.header_bar.pack_start(self.create_start_header_buttons())
+        self.header_bar.pack_end(self.create_end_header_buttons())
+
+    def create_environment_list_component(self) -> Gtk.Widget:
+        env_combo_box = Gtk.ComboBoxText.new()
+        env_combo_box.append_text("Environment 1")
+        env_combo_box.append_text("Olist")
+        env_combo_box.append_text("SpaceLoud")
+        env_combo_box.set_active(0)
+        return env_combo_box
+
+    def create_start_header_buttons(self) -> Gtk.Widget:
+        start_box = Gtk.Box.new(orientation=Gtk.Orientation.HORIZONTAL, spacing=DEFAULT_SPACING)
+        new_tab_button = Gtk.Button.new_from_icon_name("tab-new-symbolic", Gtk.IconSize.SMALL_TOOLBAR)
+        import_button = Gtk.Button.new_with_label("Import")
+        start_box.pack_start(new_tab_button, True, False, 0)
+        start_box.pack_start(import_button, True, False, 0)
+        return start_box
+
+    def create_end_header_buttons(self) -> Gtk.Widget:
+        new_menu_button = Gtk.Button.new_from_icon_name("open-menu", Gtk.IconSize.SMALL_TOOLBAR)
+        return new_menu_button

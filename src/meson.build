@@ -29,6 +29,10 @@ courier_sources = [
   '__init__.py',
   'main.py',
   'window.py',
+  'request_panel.py',
+  'constants.py',
+  'sidebar.py',
+  'request_handler.py'
 ]
 
 install_data(courier_sources, install_dir: moduledir)
