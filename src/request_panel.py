@@ -10,11 +10,13 @@ class RequestPanel(Gtk.Paned):
 
     def __init__(self):
         super().__init__()
+        self.url_entry_field = None
+        self.request_text_buffer = None
         self.set_orientation(Gtk.Orientation.VERTICAL)
         self.set_position(300)
 
         self.headers_store: Gtk.ListStore = Gtk.ListStore.new((GObject.TYPE_STRING, GObject.TYPE_STRING))
-        self.headers_store.append(("Authorization", "Bearer tokenxyz"))
+        # self.headers_store.append(("Authorization", "Bearer tokenxyz"))
 
         self.upper_box = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
 
@@ -23,18 +25,23 @@ class RequestPanel(Gtk.Paned):
 
         self.pack1(self.upper_box, True, False)
 
-        self.method = ""
+        self.method = "GET"
 
         response_text_editor = self.create_text_editor()
         self.response_text_buffer: Gtk.EntryBuffer = response_text_editor.get_buffer()
-        self.pack2(response_text_editor, True, False)
+
+        scrolled_window = Gtk.ScrolledWindow()
+        scrolled_window.add(response_text_editor)
+        self.pack2(scrolled_window, True, False)
 
     def create_text_editor(self) -> GtkSource.View:
         text_editor = GtkSource.View.new()
-        text_editor.modify_font(Pango.FontDescription('monosapce 11'))
+        text_editor.modify_font(Pango.FontDescription('monospace 12'))
         text_editor.set_highlight_current_line(True)
         text_editor.set_auto_indent(True)
         text_editor.set_show_line_numbers(True)
+        text_editor.set_wrap_mode(Gtk.WrapMode.WORD)
+        text_editor.set_indent_width(constants.DEFAULT_INDENT_WIDTH)
 
         buffer = text_editor.get_buffer()
         txt = '{"test": true, "id": 123, "name": "someone", "list": [{"test": "123"}]}'
@@ -47,8 +54,7 @@ class RequestPanel(Gtk.Paned):
         buffer.set_language(lang)
 
         manager = GtkSource.StyleSchemeManager().get_default()
-        print(manager.get_scheme_ids())
-        scheme = manager.get_scheme("solarized-dark")
+        scheme = manager.get_scheme("builder")
         buffer.set_style_scheme(scheme)
 
         buffer.set_text(txt, len(txt))
@@ -71,7 +77,7 @@ class RequestPanel(Gtk.Paned):
         self.url_entry_field = Gtk.Entry()
         self.url_entry_field.set_placeholder_text("URL")
 
-        send_button = Gtk.Button.new_with_label("SEND")
+        send_button: Gtk.Button = Gtk.Button.new_with_label("Send")
         send_button.connect("clicked", self.on_send_button_clicked)
 
         box.pack_start(method_combo_box, False, False, constants.DEFAULT_SPACING)
@@ -86,7 +92,11 @@ class RequestPanel(Gtk.Paned):
 
         request_text_editor = self.create_text_editor()
         self.request_text_buffer: Gtk.EntryBuffer = request_text_editor.get_buffer()
-        notebook.append_page(request_text_editor, Gtk.Label.new("Body"))
+
+        scrolled_window = Gtk.ScrolledWindow()
+        scrolled_window.add(request_text_editor)
+
+        notebook.append_page(scrolled_window, Gtk.Label.new("Body"))
         return notebook
 
     def on_headers_selection_changed(self, selection):
@@ -108,19 +118,25 @@ class RequestPanel(Gtk.Paned):
     # SIGNALS #
     ###########
 
-    def on_send_button_clicked(self,button: Gtk.Button):
-        #rh = RequestHandler(
-        #    self.method,
-        #    self.url_entry_field.get_text(),
-        #    self.request_text_buffer.get_text(self.request_text_buffer.get_start_iter(), self.request_text_buffer.get_end_iter(), False),
-        #    self.get_headers()
-        #)
+    def on_send_button_clicked(self, button: Gtk.Button):
+        button.set_sensitive(False)
+
+        headers = self.get_headers()
+        rh = RequestHandler(
+           self.method,
+           self.url_entry_field.get_text(),
+           self.request_text_buffer.get_text(self.request_text_buffer.get_start_iter(), self.request_text_buffer.get_end_iter(), False),
+           self.get_headers()
+        )
         
-        print(requests.get(self.url_entry_field.get_text()))
+        res = rh.send()
+
+        if res is not None:
+            body = str(res.content, 'UTF-8')
+            self.response_text_buffer.set_text(body, len(body))
 
     def on_method_combo_box_changed(self, combo_box: Gtk.ComboBoxText):
         self.method = combo_box.get_active_text()
-        print(self.method)
 
     def get_headers(self) -> dict[str, str]:
         headers = {}
@@ -128,3 +144,4 @@ class RequestPanel(Gtk.Paned):
             headers[row[0]] = row[1]
         
         return headers
+

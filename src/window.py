@@ -58,22 +58,23 @@ class CourierWindow(Gtk.ApplicationWindow):
         hpaned.pack2(self.request_panel, True, False)
 
         self.add(hpaned)
-        self.set_size_request(225,150)
+        self.set_size_request(225, 150)
         self.show_all()
 
     def setup_header_bar(self):
         self.header_bar.set_show_close_button(True)
-        self.header_bar.set_custom_title(self.create_environment_list_component())
+        self.header_bar.set_custom_title(self.create_title_label())
         self.header_bar.pack_start(self.create_start_header_buttons())
         self.header_bar.pack_end(self.create_end_header_buttons())
 
-    def create_environment_list_component(self) -> Gtk.Widget:
-        env_combo_box = Gtk.ComboBoxText.new()
-        env_combo_box.append_text("Environment 1")
-        env_combo_box.append_text("Olist")
-        env_combo_box.append_text("SpaceLoud")
-        env_combo_box.set_active(0)
-        return env_combo_box
+    def create_title_label(self):
+        return Gtk.Label("Courier")
+
+    # def create_environment_list_component(self) -> Gtk.Widget:
+    #     env_combo_box = Gtk.ComboBoxText.new()
+    #     env_combo_box.append_text("Environment 1")
+    #     env_combo_box.set_active(0)
+    #     return env_combo_box
 
     def create_start_header_buttons(self) -> Gtk.Widget:
         start_box = Gtk.Box.new(orientation=Gtk.Orientation.HORIZONTAL, spacing=DEFAULT_SPACING)
@@ -86,3 +87,4 @@ class CourierWindow(Gtk.ApplicationWindow):
     def create_end_header_buttons(self) -> Gtk.Widget:
         new_menu_button = Gtk.Button.new_from_icon_name("open-menu", Gtk.IconSize.SMALL_TOOLBAR)
         return new_menu_button
+
