@@ -1,17 +1,20 @@
-from gi.repository import Gtk, GtkSource, GObject, Pango
+import threading
+
+from gi.repository import Gtk, GtkSource, GObject, Pango, GLib
 
 import logging
-import requests
 
 from . import constants
 from .request_handler import RequestHandler
 
 class RequestPanel(Gtk.Paned):
 
-    def __init__(self):
+    def __init__(self, method="GET", url=""):
         super().__init__()
         self.url_entry_field = None
         self.request_text_buffer = None
+        self.send_button = None
+        self.response_text_editor = None
         self.set_orientation(Gtk.Orientation.VERTICAL)
         self.set_position(300)
 
@@ -20,18 +23,18 @@ class RequestPanel(Gtk.Paned):
 
         self.upper_box = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
 
-        self.upper_box.pack_start(self.create_url_component(), False, False, 5)
+        self.upper_box.pack_start(self.create_url_component(url), False, False, 5)
         self.upper_box.pack_start(self.create_notebook(), True, True, 0)
 
         self.pack1(self.upper_box, True, False)
 
-        self.method = "GET"
+        self.method = method
 
-        response_text_editor = self.create_text_editor()
-        self.response_text_buffer: Gtk.EntryBuffer = response_text_editor.get_buffer()
+        self.response_text_editor = self.create_text_editor()
+        self.response_text_buffer: Gtk.EntryBuffer = self.response_text_editor.get_buffer()
 
         scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.add(response_text_editor)
+        scrolled_window.add(self.response_text_editor)
         self.pack2(scrolled_window, True, False)
 
     def create_text_editor(self) -> GtkSource.View:
@@ -61,7 +64,7 @@ class RequestPanel(Gtk.Paned):
 
         return text_editor
 
-    def create_url_component(self) -> Gtk.Widget:
+    def create_url_component(self, url: str) -> Gtk.Widget:
         box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 0)
 
         method_combo_box = Gtk.ComboBoxText.new()
@@ -76,13 +79,15 @@ class RequestPanel(Gtk.Paned):
 
         self.url_entry_field = Gtk.Entry()
         self.url_entry_field.set_placeholder_text("URL")
+        if url:
+            self.url_entry_field.set_text(url)
 
-        send_button: Gtk.Button = Gtk.Button.new_with_label("Send")
-        send_button.connect("clicked", self.on_send_button_clicked)
+        self.send_button: Gtk.Button = Gtk.Button.new_with_label("Send")
+        self.send_button.connect("clicked", self.on_send_button_clicked)
 
         box.pack_start(method_combo_box, False, False, constants.DEFAULT_SPACING)
         box.pack_start(self.url_entry_field, True, True, 0)
-        box.pack_start(send_button, False, False, constants.DEFAULT_SPACING)
+        box.pack_start(self.send_button, False, False, constants.DEFAULT_SPACING)
 
         return box
 
@@ -120,20 +125,35 @@ class RequestPanel(Gtk.Paned):
 
     def on_send_button_clicked(self, button: Gtk.Button):
         button.set_sensitive(False)
+        button.set_label("Sending")
 
-        headers = self.get_headers()
+        self.response_text_editor.set_sensitive(False)
+        sending_req_text = "Sending request..."
+        self.response_text_buffer.set_text(sending_req_text, len(sending_req_text))
+
+        thread = threading.Thread(target=self.perform_request)
+        thread.daemon = True
+        thread.start()
+
+    def perform_request(self):
         rh = RequestHandler(
-           self.method,
-           self.url_entry_field.get_text(),
-           self.request_text_buffer.get_text(self.request_text_buffer.get_start_iter(), self.request_text_buffer.get_end_iter(), False),
-           self.get_headers()
+            self.method,
+            self.url_entry_field.get_text(),
+            self.request_text_buffer.get_text(self.request_text_buffer.get_start_iter(),
+                                              self.request_text_buffer.get_end_iter(), False),
+            self.get_headers()
         )
-        
         res = rh.send()
-
         if res is not None:
             body = str(res.content, 'UTF-8')
-            self.response_text_buffer.set_text(body, len(body))
+        else:
+            body = ""
+        GLib.idle_add(self.perform_request_ui_callback, body)
+
+    def perform_request_ui_callback(self, body: str):
+        self.response_text_buffer.set_text(body, len(body))
+        self.send_button.set_sensitive(True)
+        self.send_button.set_label("Send")
 
     def on_method_combo_box_changed(self, combo_box: Gtk.ComboBoxText):
         self.method = combo_box.get_active_text()

@@ -32,7 +32,9 @@ courier_sources = [
   'request_panel.py',
   'constants.py',
   'sidebar.py',
-  'request_handler.py'
+  'request_handler.py',
+  'collection_manager.py',
+  'tab_panel.py'
 ]
 
 install_data(courier_sources, install_dir: moduledir)

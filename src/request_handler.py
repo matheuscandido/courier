@@ -1,4 +1,8 @@
+import json
+
+from requests import *
 import requests
+
 
 class RequestHandler:
     def __init__(self, method: str, url: str, data: str, headers: dict) -> None:
@@ -12,6 +16,8 @@ class RequestHandler:
         if self.method == "GET":
             return requests.get(self.url, headers=self.headers)
         elif self.method == "POST":
+            print("data sent(" + self.data + ")", type(self.data))
             return requests.post(self.url, data=self.data, headers=self.headers)
         else:
             return None
+

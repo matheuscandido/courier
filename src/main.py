@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+import logging
 import gi
 
 gi.require_version('Gtk', '3.0')
@@ -30,6 +31,7 @@ class Application(Gtk.Application):
     def __init__(self):
         super().__init__(application_id='com.mcandido.Courier',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
+        logging.basicConfig(filename="debug.log", encoding='utf-8', level=logging.DEBUG)
 
     def do_activate(self):
         win = self.props.active_window
