@@ -44,7 +44,7 @@ class CourierWindow(Gtk.ApplicationWindow):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.set_border_width(0)
-        self.set_default_size(800, 600)
+        self.set_default_size(1200, 900)
 
         self.header_bar = Gtk.HeaderBar.new()
         self.setup_header_bar()
