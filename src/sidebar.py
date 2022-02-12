@@ -1,10 +1,14 @@
 from gi.repository import Gtk, GObject
 from .collection_manager import CollectionManager
 from . import constants
+from .request_panel import RequestPanel
+
+from json import dumps, loads
 
 TYPE = 0
 METHOD = 1
 NAME = 2
+REQUEST_JSON_STRING = 3
 
 TREE_COLLECTION = 0
 TREE_REQUEST = 1
@@ -33,9 +37,10 @@ class Sidebar(Gtk.ScrolledWindow):
 
         # Type, Method, Method
         self.model_store = Gtk.TreeStore.new((
-            GObject.TYPE_BOOLEAN,
-            GObject.TYPE_STRING,
-            GObject.TYPE_STRING
+            GObject.TYPE_BOOLEAN, # type
+            GObject.TYPE_STRING,  # method
+            GObject.TYPE_STRING,  # name
+            GObject.TYPE_STRING,  # request json string
         ))
 
         for collection in self.collection_manager.colletions:
@@ -55,12 +60,20 @@ class Sidebar(Gtk.ScrolledWindow):
         if "request" in item:
             # item is a request
             item_iter = model_store.append(parent_iter)
-            model_store.set(item_iter, TYPE, TREE_REQUEST, METHOD, item["request"]["method"], NAME, item["name"])
+            model_store.set(item_iter,
+                TYPE, TREE_REQUEST,
+                METHOD, item["request"]["method"],
+                NAME, item["name"],
+                REQUEST_JSON_STRING, dumps(item))
             return
         else:
             # item is a folder
             item_iter = model_store.append(parent_iter)
-            model_store.set(item_iter, TYPE, TREE_COLLECTION, METHOD, "", NAME, item["name"])
+            model_store.set(item_iter,
+                TYPE, TREE_COLLECTION,
+                METHOD, "",
+                NAME, item["name"],
+                REQUEST_JSON_STRING, "")
             for child in item["item"]:
                 self.iterative_collection_parser(
                     model_store=model_store,
@@ -86,13 +99,27 @@ class Sidebar(Gtk.ScrolledWindow):
         model: Gtk.TreeModel = treeview.get_model()
         iter = model.get_iter(path)
         if iter:
-            (row_type, method, name) = model.get(iter, TYPE, METHOD, NAME)
+            (row_type, method, name, request_json_string) = model.get(iter, TYPE, METHOD, NAME,  REQUEST_JSON_STRING)
             if row_type == TREE_COLLECTION:
                 return
 
             if len(name) > 15:
                 name = name[:15] + "..."
-            self.window.tab_panel.new_tab(f"{method} {name}", RequestPanel(method=method))
+            request_json_dict = loads(request_json_string)
+
+            if "body" in request_json_dict["request"]:
+                body = request_json_dict["request"]["body"]["raw"]
+            else:
+                body = ""
+
+            headers = [(obj["key"], obj["value"]) for obj in request_json_dict["header"]] if "header" in request_json_dict else []
+
+            req_panel = RequestPanel(
+                method=method,
+                url=request_json_dict["request"]["url"]["raw"],
+                body=body,
+                headers=headers)
+            self.window.tab_panel.new_tab(f"{method} {name}", req_panel)
 
     def get_method_color(self, method: str) -> str:
         if method in METHOD_COLORS:
