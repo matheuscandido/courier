@@ -9,7 +9,7 @@ from .request_handler import RequestHandler
 
 class RequestPanel(Gtk.Paned):
 
-    def __init__(self, method="GET", url=""):
+    def __init__(self, method: str = "GET", url: str = "", body: str = "", headers: list[tuple[str, str]] = None):
         super().__init__()
         self.url_entry_field = None
         self.request_text_buffer = None
@@ -17,6 +17,9 @@ class RequestPanel(Gtk.Paned):
         self.response_text_editor = None
         self.set_orientation(Gtk.Orientation.VERTICAL)
         self.set_position(300)
+
+        if body != "":
+            self.request_text_buffer = Gtk.EntryBuffer(body, len(body))
 
         self.headers_store: Gtk.ListStore = Gtk.ListStore.new((GObject.TYPE_STRING, GObject.TYPE_STRING))
         # self.headers_store.append(("Authorization", "Bearer tokenxyz"))
@@ -68,11 +71,11 @@ class RequestPanel(Gtk.Paned):
         box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 0)
 
         method_combo_box = Gtk.ComboBoxText.new()
-        method_combo_box.append("get", "GET")
-        method_combo_box.append("post", "POST")
-        method_combo_box.append("put", "PUT")
-        method_combo_box.append("patch", "PATCH")
-        method_combo_box.append("delete", "DELETE")
+        method_combo_box.append("get", constants.METHOD_GET)
+        method_combo_box.append("post", constants.METHOD_POST)
+        method_combo_box.append("put", constants.METHOD_PUT)
+        method_combo_box.append("patch", constants.METHOD_PATCH)
+        method_combo_box.append("delete", constants.METHOD_DELETE)
         method_combo_box.set_active(0)
         self.method = method_combo_box.get_active_text()
         method_combo_box.connect("changed", self.on_method_combo_box_changed)
@@ -96,7 +99,10 @@ class RequestPanel(Gtk.Paned):
         notebook.append_page(self.create_headers_page(self.headers_store), Gtk.Label.new("Headers"))
 
         request_text_editor = self.create_text_editor()
-        self.request_text_buffer: Gtk.EntryBuffer = request_text_editor.get_buffer()
+        if self.request_text_buffer is None:
+            self.request_text_buffer: Gtk.EntryBuffer = request_text_editor.get_buffer()
+        else:
+            request_text_editor.set_buffer(self.request_text_buffer)
 
         scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.add(request_text_editor)
