@@ -39,45 +39,43 @@ class Sidebar(Gtk.ScrolledWindow):
         ))
 
         for collection in self.collection_manager.colletions:
-            self.recursive_collection_parser(self.model_store, None, collection)
+            root_iter: Gtk.TreeIter = self.model_store.append(None)
+            self.model_store.set(root_iter, TYPE, TREE_COLLECTION, METHOD, "", NAME, collection["info"]["name"])
 
-        # for collection in self.collection_manager.colletions:
-        #     root_iter = self.model_store.append(None)
-        #     self.model_store.set(root_iter, TYPE, TREE_COLLECTION, METHOD, "", NAME, collection["info"]["name"])
-
-        #     parent_iter = root_iter
-
-        #     for item in collection["item"]:
-        #         item_iter = self.model_store.append(parent_iter)
-        #         self.model_store.set(item_iter, TYPE, TREE_REQUEST, METHOD, item["request"]["method"], NAME, item["name"])
+            for item in collection["item"]:
+                self.iterative_collection_parser(self.model_store, root_iter, item)
 
         self.tree_view.set_model(self.model_store)
 
         self.add(self.tree_view)
 
-    def recursive_collection_parser(self, model_store, parent_iter, item: dict):
-        if "item" in item:
-            item_iter = model_store.append(parent_iter)
-            if parent_iter is None:
-                model_store.set(item_iter, TYPE, TREE_COLLECTION, METHOD, "", NAME, item["info"]["name"])
-            else:
-                model_store.set(item_iter, TYPE, TREE_COLLECTION, METHOD, "", NAME, item["name"])
 
-            for i in item["item"]:
-                self.recursive_collection_parser(model_store, item_iter, i)
-        else:
+
+    def iterative_collection_parser(self, model_store: Gtk.TreeStore, parent_iter: Gtk.TreeIter, item: dict):
+        if "request" in item:
+            # item is a request
             item_iter = model_store.append(parent_iter)
-            model_store.set(parent_iter, TYPE, TREE_REQUEST, METHOD, item["request"]["method"], NAME, item["name"])
-            print(f"adicionou {item['name']} filho de {parent_iter}")
+            model_store.set(item_iter, TYPE, TREE_REQUEST, METHOD, item["request"]["method"], NAME, item["name"])
+            return
+        else:
+            # item is a folder
+            item_iter = model_store.append(parent_iter)
+            model_store.set(item_iter, TYPE, TREE_COLLECTION, METHOD, "", NAME, item["name"])
+            for child in item["item"]:
+                self.iterative_collection_parser(
+                    model_store=model_store,
+                    parent_iter=item_iter,
+                    item=child
+                )
     
     def setup_tree_view(self):
         renderer = Gtk.CellRendererText.new()
-        column = Gtk.TreeViewColumn("Name", renderer, text=NAME)
+        column = Gtk.TreeViewColumn("Method", renderer, text=METHOD)
+        column.set_cell_data_func(renderer, self.cell_data_method_column)
         self.tree_view.append_column(column)
 
         renderer = Gtk.CellRendererText.new()
-        column = Gtk.TreeViewColumn("Method", renderer, text=METHOD)
-        column.set_cell_data_func(renderer, self.cell_data_method_column)
+        column = Gtk.TreeViewColumn("Name", renderer, text=NAME)
         self.tree_view.append_column(column)
 
     def cell_data_method_column(self, column, renderer, model, iter, data):
