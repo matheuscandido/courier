@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg height="128px" viewBox="0 0 128 128" width="128px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <linearGradient id="a" gradientUnits="userSpaceOnUse" x1="12.000031" x2="116.000031" y1="66.000878" y2="66.000878">
+        <stop offset="0" stop-color="#26a269"/>
+        <stop offset="0.0384615" stop-color="#57e389"/>
+        <stop offset="0.0768555" stop-color="#2ec27e"/>
+        <stop offset="0.923077" stop-color="#2ec27e"/>
+        <stop offset="0.961538" stop-color="#57e389"/>
+        <stop offset="1" stop-color="#26a269"/>
+    </linearGradient>
+    <symbol id="b" overflow="visible">
+        <path d="m 11.5625 -27.4375 h 8.5625 v 9.421875 h -8.5625 z m 0 17.96875 h 8.5625 v 9.46875 h -8.5625 z m 0 0"/>
+    </symbol>
+    <symbol id="c" overflow="visible">
+        <path d="m 23.140625 -38.53125 h 5.6875 l -20.234375 43.4375 h -5.6875 z m 0 0"/>
+    </symbol>
+    <path d="m 20 16 h 88 c 4.417969 0 8 3.582031 8 8 v 84 c 0 4.417969 -3.582031 8 -8 8 h -88 c -4.417969 0 -8 -3.582031 -8 -8 v -84 c 0 -4.417969 3.582031 -8 8 -8 z m 0 0" fill="url(#a)"/>
+    <path d="m 20 12 h 88 c 4.417969 0 8 3.582031 8 8 v 84 c 0 4.417969 -3.582031 8 -8 8 h -88 c -4.417969 0 -8 -3.582031 -8 -8 v -84 c 0 -4.417969 3.582031 -8 8 -8 z m 0 0" fill="#33d17a"/>
+    <g fill="#ffffff">
+        <use x="12.058594" xlink:href="#b" y="78.816787"/>
+        <use x="43.885627" xlink:href="#c" y="78.816787"/>
+        <use x="75.71266" xlink:href="#c" y="78.816787"/>
+    </g>
+</svg>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg height="16px" viewBox="0 0 16 16" width="16px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <symbol id="a" overflow="visible">
+        <path d="m 2.859375 -6.234375 h 1.484375 v 1.78125 h -1.484375 z m 0 4.453125 h 1.484375 v 1.78125 h -1.484375 z m 0 0"/>
+    </symbol>
+    <symbol id="b" overflow="visible">
+        <path d="m 3.046875 -8.75 h 1 l -3.046875 9.859375 h -1 z m 0 0"/>
+    </symbol>
+    <use x="-0.566406" xlink:href="#a" y="11.072266"/>
+    <use x="5.011719" xlink:href="#b" y="11.896484"/>
+    <use x="9.054688" xlink:href="#b" y="11.896484"/>
+</svg>
