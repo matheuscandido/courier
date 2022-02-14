@@ -11,8 +11,15 @@
 - [ ] Editing and saving open requests
 - [ ] Add new requests to existing collections
 - [ ] Implement exporting existing collections
-- [ ] Add colors to HTTP verbs on tab handles
+- [ ] Renaming requests and folders
 - [ ] Add proper exception handling everywhere
+- [ ] Add colors to HTTP verbs on tab handles
 - [ ] Add breaks for misbehaviors on the UI (ex: send request with empty URL field)
 - [ ] Add query params tab to request
+
+-- Future workable improvements --
+
 - [ ] Move loading collections to a new thread on startup
+- [ ] Compatibility with more collection schema versions
+- [ ] Environment system
+- [ ] Upgrade libraries for GTK4 and libadwaita
