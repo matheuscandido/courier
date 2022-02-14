@@ -19,7 +19,8 @@ class RequestPanel(Gtk.Paned):
         self.set_position(300)
 
         if body != "":
-            self.request_text_buffer = Gtk.EntryBuffer(body, len(body))
+            self.request_text_buffer = self.create_gtk_source_view_buffer()
+            self.request_text_buffer.set_text(body, len(body))
 
         self.headers_store: Gtk.ListStore = Gtk.ListStore.new((GObject.TYPE_STRING, GObject.TYPE_STRING))
         # self.headers_store.append(("Authorization", "Bearer tokenxyz"))
@@ -34,14 +35,14 @@ class RequestPanel(Gtk.Paned):
         self.method = method
 
         self.response_text_editor = self.create_text_editor()
-        self.response_text_buffer: Gtk.EntryBuffer = self.response_text_editor.get_buffer()
+        self.response_text_buffer: GtkSource.Buffer = self.response_text_editor.get_buffer()
 
         scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.add(self.response_text_editor)
         self.pack2(scrolled_window, True, False)
 
     def create_text_editor(self) -> GtkSource.View:
-        text_editor = GtkSource.View.new()
+        text_editor = GtkSource.View.new_with_buffer(self.create_gtk_source_view_buffer())
         text_editor.modify_font(Pango.FontDescription('monospace 12'))
         text_editor.set_highlight_current_line(True)
         text_editor.set_auto_indent(True)
@@ -49,23 +50,22 @@ class RequestPanel(Gtk.Paned):
         text_editor.set_wrap_mode(Gtk.WrapMode.WORD)
         text_editor.set_indent_width(constants.DEFAULT_INDENT_WIDTH)
 
-        buffer = text_editor.get_buffer()
-        txt = '{"test": true, "id": 123, "name": "someone", "list": [{"test": "123"}]}'
-        buffer.set_text(txt)
+        return text_editor
+
+    def create_gtk_source_view_buffer(self) -> GtkSource.Buffer:
+        buffer = GtkSource.Buffer()
 
         lm = GtkSource.LanguageManager.new()
         lang = lm.get_language("json")
-        
+
         buffer.set_highlight_syntax(True)
         buffer.set_language(lang)
 
         manager = GtkSource.StyleSchemeManager().get_default()
-        scheme = manager.get_scheme("builder")
+        scheme = manager.get_scheme("solarized-dark")
         buffer.set_style_scheme(scheme)
 
-        buffer.set_text(txt, len(txt))
-
-        return text_editor
+        return buffer
 
     def create_url_component(self, url: str) -> Gtk.Widget:
         box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 0)
@@ -100,7 +100,7 @@ class RequestPanel(Gtk.Paned):
 
         request_text_editor = self.create_text_editor()
         if self.request_text_buffer is None:
-            self.request_text_buffer: Gtk.EntryBuffer = request_text_editor.get_buffer()
+            self.request_text_buffer: GtkSource.Buffer = request_text_editor.get_buffer()
         else:
             request_text_editor.set_buffer(self.request_text_buffer)
 
