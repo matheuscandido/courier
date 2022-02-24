@@ -7,6 +7,9 @@ import logging
 from . import constants
 from .request_handler import RequestHandler
 
+HEADERS_KEY = 0
+HEADERS_VALUE = 1
+
 class RequestPanel(Gtk.Paned):
 
     def __init__(self, method: str = "GET", url: str = "", body: str = "", headers: list[tuple[str, str]] = None):
@@ -23,7 +26,10 @@ class RequestPanel(Gtk.Paned):
             self.request_text_buffer.set_text(body, len(body))
 
         self.headers_store: Gtk.ListStore = Gtk.ListStore.new((GObject.TYPE_STRING, GObject.TYPE_STRING))
-        # self.headers_store.append(("Authorization", "Bearer tokenxyz"))
+        if headers is not None:
+            for header in headers:
+                iterator = self.headers_store.append(None)
+                self.headers_store.set(iterator, HEADERS_KEY, header[0], HEADERS_VALUE, header[1])
 
         self.upper_box = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
 

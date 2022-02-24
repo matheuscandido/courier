@@ -5,6 +5,8 @@ from .request_panel import RequestPanel
 
 from json import dumps, loads
 
+import logging
+
 TYPE = 0
 METHOD = 1
 NAME = 2
@@ -114,6 +116,7 @@ class Sidebar(Gtk.ScrolledWindow):
 
             headers = [(obj["key"], obj["value"]) for obj in request_json_dict["header"]] if "header" in request_json_dict else []
 
+            print("json:" + request_json_string)
             req_panel = RequestPanel(
                 method=method,
                 url=request_json_dict["request"]["url"]["raw"],
