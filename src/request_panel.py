@@ -20,6 +20,7 @@ class RequestPanel(Gtk.Paned):
         self.response_text_editor = None
         self.set_orientation(Gtk.Orientation.VERTICAL)
         self.set_position(300)
+        self.method_combo_box = None
 
         if body != "":
             self.request_text_buffer = self.create_gtk_source_view_buffer()
@@ -35,6 +36,8 @@ class RequestPanel(Gtk.Paned):
 
         self.upper_box.pack_start(self.create_url_component(url), False, False, 5)
         self.upper_box.pack_start(self.create_notebook(), True, True, 0)
+
+        self.method_combo_box.set_active(self.get_method_number(method))
 
         self.pack1(self.upper_box, True, False)
 
@@ -76,15 +79,13 @@ class RequestPanel(Gtk.Paned):
     def create_url_component(self, url: str) -> Gtk.Widget:
         box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 0)
 
-        method_combo_box = Gtk.ComboBoxText.new()
-        method_combo_box.append("get", constants.METHOD_GET)
-        method_combo_box.append("post", constants.METHOD_POST)
-        method_combo_box.append("put", constants.METHOD_PUT)
-        method_combo_box.append("patch", constants.METHOD_PATCH)
-        method_combo_box.append("delete", constants.METHOD_DELETE)
-        method_combo_box.set_active(0)
-        self.method = method_combo_box.get_active_text()
-        method_combo_box.connect("changed", self.on_method_combo_box_changed)
+        self.method_combo_box = Gtk.ComboBoxText.new()
+        self.method_combo_box.append(constants.METHOD_GET, constants.METHOD_GET.upper())
+        self.method_combo_box.append(constants.METHOD_POST, constants.METHOD_POST.upper())
+        self.method_combo_box.append(constants.METHOD_PUT, constants.METHOD_PUT.upper())
+        self.method_combo_box.append(constants.METHOD_PATCH, constants.METHOD_PATCH.upper())
+        self.method_combo_box.append(constants.METHOD_DELETE, constants.METHOD_DELETE.upper())
+        self.method_combo_box.connect("changed", self.on_method_combo_box_changed)
 
         self.url_entry_field = Gtk.Entry()
         self.url_entry_field.set_placeholder_text("URL")
@@ -94,7 +95,7 @@ class RequestPanel(Gtk.Paned):
         self.send_button: Gtk.Button = Gtk.Button.new_with_label("Send")
         self.send_button.connect("clicked", self.on_send_button_clicked)
 
-        box.pack_start(method_combo_box, False, False, constants.DEFAULT_SPACING)
+        box.pack_start(self.method_combo_box, False, False, constants.DEFAULT_SPACING)
         box.pack_start(self.url_entry_field, True, True, 0)
         box.pack_start(self.send_button, False, False, constants.DEFAULT_SPACING)
 
@@ -130,6 +131,20 @@ class RequestPanel(Gtk.Paned):
         select.connect("changed", self.on_headers_selection_changed)
 
         return tree_view
+
+    def get_method_number(self, method: str) -> int:
+        methods_list = (
+            constants.METHOD_GET.upper(),
+            constants.METHOD_POST.upper(),
+            constants.METHOD_PUT.upper(),
+            constants.METHOD_PATCH.upper(),
+            constants.METHOD_DELETE.upper())
+
+        for index, m in enumerate(methods_list):
+            if method == m:
+                return index
+
+        return 0
 
     ###########
     # SIGNALS #
@@ -168,7 +183,7 @@ class RequestPanel(Gtk.Paned):
         self.send_button.set_label("Send")
 
     def on_method_combo_box_changed(self, combo_box: Gtk.ComboBoxText):
-        self.method = combo_box.get_active_text()
+        pass
 
     def get_headers(self) -> dict[str, str]:
         headers = {}

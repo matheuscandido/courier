@@ -116,7 +116,6 @@ class Sidebar(Gtk.ScrolledWindow):
 
             headers = [(obj["key"], obj["value"]) for obj in request_json_dict["header"]] if "header" in request_json_dict else []
 
-            print("json:" + request_json_string)
             req_panel = RequestPanel(
                 method=method,
                 url=request_json_dict["request"]["url"]["raw"],
