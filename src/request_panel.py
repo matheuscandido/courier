@@ -124,8 +124,20 @@ class RequestPanel(Gtk.Paned):
 
     def create_headers_page(self, store: Gtk.ListStore) -> Gtk.TreeView:
         tree_view = Gtk.TreeView(model=store)
-        tree_view.append_column(Gtk.TreeViewColumn("Key", Gtk.CellRendererText(), text=0))
-        tree_view.append_column(Gtk.TreeViewColumn("Value", Gtk.CellRendererText(), text=1))
+
+        key_column = Gtk.TreeViewColumn("Key", Gtk.CellRendererText(), text=0)
+        key_column.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
+        key_column.set_min_width(300)
+        key_column.set_resizable(True)
+        key_column.set_reorderable(True)
+        tree_view.append_column(key_column)
+
+        value_column = Gtk.TreeViewColumn("Value", Gtk.CellRendererText(), text=1)
+        key_column.set_min_width(300)
+        value_column.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
+        value_column.set_resizable(True)
+        value_column.set_reorderable(True)
+        tree_view.append_column(value_column)
 
         select = tree_view.get_selection()
         select.connect("changed", self.on_headers_selection_changed)
