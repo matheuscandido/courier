@@ -126,17 +126,34 @@ class RequestPanel(Gtk.Paned):
         if treeiter is not None:
             print("headers selection changed: " + model[treeiter][0])
 
-    def create_headers_page(self, store: Gtk.ListStore) -> Gtk.TreeView:
+    def create_headers_page(self, store: Gtk.ListStore) -> Gtk.VBox:
+        vbox = Gtk.VBox.new(False, 0)
+
+        hbox = Gtk.HBox.new(False, 0)
+        add_button = Gtk.Button.new_with_label("Add Header")
+        add_button.connect("clicked", self.on_add_header_button_clicked, store)
+        hbox.pack_end(add_button, expand=False, fill=False, padding=constants.DEFAULT_SPACING)
+
+        vbox.pack_start(hbox, expand=False, fill=False, padding=constants.DEFAULT_SPACING)
+
         tree_view = Gtk.TreeView(model=store)
 
-        key_column = Gtk.TreeViewColumn("Key", Gtk.CellRendererText(), text=0)
+        key_renderer = Gtk.CellRendererText.new()
+        key_renderer.set_property("editable", True)
+        key_renderer.connect("edited", self.cell_edited, tree_view, 0)
+
+        key_column = Gtk.TreeViewColumn("Key", key_renderer, text=0)
         key_column.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
         key_column.set_min_width(300)
         key_column.set_resizable(True)
         key_column.set_reorderable(True)
         tree_view.append_column(key_column)
 
-        value_column = Gtk.TreeViewColumn("Value", Gtk.CellRendererText(), text=1)
+        value_renderer = Gtk.CellRendererText.new()
+        value_renderer.set_property("editable", True)
+        value_renderer.connect("edited", self.cell_edited, tree_view, 1)
+
+        value_column = Gtk.TreeViewColumn("Value", value_renderer, text=1)
         key_column.set_min_width(300)
         value_column.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
         value_column.set_resizable(True)
@@ -146,7 +163,20 @@ class RequestPanel(Gtk.Paned):
         select = tree_view.get_selection()
         select.connect("changed", self.on_headers_selection_changed)
 
-        return tree_view
+        vbox.pack_end(tree_view, expand=True, fill=True, padding=constants.DEFAULT_SPACING)
+
+        return vbox
+
+    def on_add_header_button_clicked(self, button: Gtk.Button, store: Gtk.ListStore):
+        iter = store.append()
+        store.set(iter, HEADERS_KEY, "new key...", HEADERS_VALUE, "new value...")
+
+    def cell_edited(self, renderer, path, new_text, treeview, index):
+        if len(new_text) > 0:
+            model = treeview.get_model()
+            iter = model.get_iter_from_string(path)
+            if iter:
+                model.set(iter, index, new_text)
 
     def get_method_number(self, method: str) -> int:
         methods_list = (
