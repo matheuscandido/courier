@@ -5,7 +5,6 @@ from gi.repository import Gtk, GtkSource, GObject, Pango, GLib
 import logging
 
 from . import constants
-from .request_handler import RequestHandler
 
 HEADERS_KEY = 0
 HEADERS_VALUE = 1
@@ -13,6 +12,8 @@ HEADERS_VALUE = 1
 class RequestPanel(Gtk.Paned):
 
     def __init__(self, method: str = "GET", url: str = "", body: str = "", headers: list[tuple[str, str]] = None):
+        from .request_handler import RequestHandler
+        from .tab_panel import TabPanel, TabHandle
         super().__init__()
         self.url_entry_field = None
         self.request_text_buffer = None
@@ -21,6 +22,9 @@ class RequestPanel(Gtk.Paned):
         self.set_orientation(Gtk.Orientation.VERTICAL)
         self.set_position(300)
         self.method_combo_box = None
+
+        self.tab_handle: TabHandle = None
+        self.notebook: TabPanel =None
 
         if body != "":
             self.request_text_buffer = self.create_gtk_source_view_buffer()
@@ -120,7 +124,7 @@ class RequestPanel(Gtk.Paned):
     def on_headers_selection_changed(self, selection):
         model, treeiter = selection.get_selected()
         if treeiter is not None:
-            logging.debug("headers selection changed: " + model[treeiter][0])
+            print("headers selection changed: " + model[treeiter][0])
 
     def create_headers_page(self, store: Gtk.ListStore) -> Gtk.TreeView:
         tree_view = Gtk.TreeView(model=store)
@@ -157,6 +161,12 @@ class RequestPanel(Gtk.Paned):
                 return index
 
         return 0
+
+    def set_tab_handle_ref(self, tab_handle):
+        self.tab_handle = tab_handle
+
+    def set_notebook_ref(self, notebook):
+        self.notebook = notebook
 
     ###########
     # SIGNALS #
@@ -195,7 +205,8 @@ class RequestPanel(Gtk.Paned):
         self.send_button.set_label("Send")
 
     def on_method_combo_box_changed(self, combo_box: Gtk.ComboBoxText):
-        pass
+        self.method = combo_box.get_active_text()
+
 
     def get_headers(self) -> dict[str, str]:
         headers = {}

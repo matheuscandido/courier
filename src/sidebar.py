@@ -121,7 +121,7 @@ class Sidebar(Gtk.ScrolledWindow):
                 url=request_json_dict["request"]["url"]["raw"],
                 body=body,
                 headers=headers)
-            self.window.tab_panel.new_tab(f"{method} {name}", req_panel)
+            self.window.tab_panel.new_tab(method, name, req_panel)
 
     def get_method_color(self, method: str) -> str:
         if method in METHOD_COLORS:

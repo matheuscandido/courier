@@ -55,7 +55,7 @@ class CourierWindow(Gtk.ApplicationWindow):
 
         self.tab_panel = TabPanel()
         self.tab_panel.set_scrollable(True)
-        self.tab_panel.new_tab("New Request", RequestPanel())
+        self.tab_panel.new_tab("GET", "New Request", RequestPanel())
 
         self.collection_manager = CollectionManager()
         self.sidebar = Sidebar(self.collection_manager, self)
@@ -97,5 +97,5 @@ class CourierWindow(Gtk.ApplicationWindow):
         return new_menu_button
 
     def on_new_tab_button_clicked(self, button: Gtk.Button):
-        self.tab_panel.new_tab("New Request " + str(self.tab_panel.get_n_pages() + 1), RequestPanel())
+        self.tab_panel.new_tab("GET", "New Request " + str(self.tab_panel.get_n_pages() + 1), RequestPanel())
 
