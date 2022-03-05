@@ -1,3 +1,5 @@
 .vscode/
 .flatpak/
 _build/
+
+debug.log
