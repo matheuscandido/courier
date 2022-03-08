@@ -22,7 +22,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('GtkSource', '4')
 
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk, Gio, GLib
 
 from .window import CourierWindow
 
@@ -32,6 +32,8 @@ class Application(Gtk.Application):
         super().__init__(application_id='com.mcandido.Courier',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         logging.basicConfig(filename="debug.log", encoding='utf-8', level=logging.DEBUG)
+        GLib.set_application_name("Courier")
+        GLib.set_prgname("com.mcandido.Courier")
 
     def do_activate(self):
         win = self.props.active_window

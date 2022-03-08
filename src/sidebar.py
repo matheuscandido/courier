@@ -23,7 +23,9 @@ METHOD_COLORS = {
     "DELETE": "#FF0000"
 }
 
+@Gtk.Template(resource_path='/com/mcandido/Courier/ui/sidebar.ui')
 class Sidebar(Gtk.ScrolledWindow):
+    __gtype_name__ = 'Sidebar'
 
     def __init__(self, collection_manager: CollectionManager, window: Gtk.ApplicationWindow):
         super().__init__()
@@ -55,6 +57,7 @@ class Sidebar(Gtk.ScrolledWindow):
         self.tree_view.set_model(self.model_store)
 
         self.add(self.tree_view)
+        self.show_all()
 
 
 

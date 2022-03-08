@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="3.2" />
+    <template class="CourierWindow" parent="GtkApplicationWindow">
+        <property name="default-width">1200</property>
+        <property name="default-height">900</property>
+        <property name="title">Courier</property>
+        <property name="icon-name">com.mcandido.Courier</property>
+        <child type="titlebar">
+            <object class="GtkHeaderBar" id="header_bar">
+                <property name="visible">True</property>
+                <property name="show-close-button">True</property>
+                <property name="title">Courier</property>
+                <child>
+                    <object class="GtkButton" id="new_tab_button">
+                        <property name="visible">True</property>
+                        <signal name="clicked" handler="on_new_tab_button_clicked"/>
+                        <child>
+                            <object class="GtkImage">
+                                <property name="visible">True</property>
+                                <property name="icon-size">1</property>
+                                <property name="icon-name">tab-new-symbolic</property>
+                            </object>
+                        </child>
+                    </object>
+                    <packing>
+                        <property name="pack-type">start</property>
+                    </packing>
+                </child>
+                <child>
+                    <object class="GtkButton" id="import_button">
+                        <property name="visible">True</property>
+                        <property name="label">Import</property>
+                    </object>
+                    <packing>
+                        <property name="pack-type">start</property>
+                    </packing>
+                </child>
+            </object>
+        </child>
+        <child>
+            <object class="GtkPaned" id="hpaned">
+                <property name="visible">True</property>
+                <property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
+                <property name="position">250</property>
+                <property name="wide-handle">True</property>
+                <!-- <child>
+                    <object class="Sidebar" id="sidebar">
+                        <attribute name="collection_manager" value="self.collection_manager" />
+                        <attribute name="window" value="self"/>
+                    </object>
+                    <packing>
+                        <property name="resize">False</property>
+                        <property name="shrink">False</property>
+                    </packing>
+                </child> -->
+                <!-- <child>
+                    <object class="GtkLabel">
+                        <property name="label">Direita</property>
+                        <property name="visible">True</property>
+                    </object>
+                    <packing>
+                        <property name="resize">True</property>
+                        <property name="shrink">True</property>
+                    </packing>
+                </child> -->
+            </object>
+        </child>
+    </template>
+</interface>
