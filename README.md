@@ -1,20 +1,21 @@
 ## Courier - A Postman-like HTTP client in GTK+3
 
-### To-Do
-
+### Priority
 - [x] Load collections into a proper tree view on sidebar
     - [x] Pretty renderer for colored method verbs
     - [x] Collection v2.1 full spec parser
-    - [-] Link treestore with collection dict in memory to open requests filled
+    - [ ] Link treestore with collection dict in memory to open requests filled
 - [x] Click on request in the sidebar and open it on a new tab
-- [-] Editing headers table and saving them on disk
+- [ ] Editing headers table and saving them on disk
 - [ ] Editing and saving open requests
 - [ ] Renaming requests and folders
+
+### Secondary
 - [ ] Add proper exception handling everywhere
 - [ ] Add colors to HTTP verbs on tab handles
 - [ ] Add breaks for misbehaviors on the UI (ex: send request with empty URL field)
 
--- Future workable improvements --
+### Future workable improvements
 - [ ] Add query params tab to request
 - [ ] Implement exporting existing collections
 - [ ] Add new requests to existing collections

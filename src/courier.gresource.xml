@@ -3,5 +3,6 @@
   <gresource prefix="/com/mcandido/Courier">
     <file>ui/main_window.ui</file>
     <file>ui/sidebar.ui</file>
+    <file>ui/request_panel.ui</file>
   </gresource>
 </gresources>

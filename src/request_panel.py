@@ -9,7 +9,9 @@ from . import constants
 HEADERS_KEY = 0
 HEADERS_VALUE = 1
 
+@Gtk.Template(resource_path='/com/mcandido/Courier/ui/request_panel.ui')
 class RequestPanel(Gtk.Paned):
+    __gtype_name__ = 'RequestPanel'
 
     def __init__(self, method: str = "GET", url: str = "", body: str = "", headers: list[tuple[str, str]] = None):
         from .request_handler import RequestHandler
