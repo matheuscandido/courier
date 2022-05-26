@@ -2,9 +2,10 @@ import threading
 
 from gi.repository import Gtk, GtkSource, GObject, Pango, GLib
 
-import logging
+import logging, json
 
 from . import constants
+from .request_handler import RequestHandler
 
 HEADERS_KEY = 0
 HEADERS_VALUE = 1
@@ -226,13 +227,14 @@ class RequestPanel(Gtk.Paned):
         )
         res = rh.send()
         if res is not None:
-            body = str(res.content, 'UTF-8')
+            body = json.dumps(json.loads(str(res.content, 'UTF-8')), indent=4, sort_keys=True)
         else:
             body = ""
         GLib.idle_add(self.perform_request_ui_callback, body)
 
     def perform_request_ui_callback(self, body: str):
         self.response_text_buffer.set_text(body, len(body))
+        self.response_text_editor.set_sensitive(True)
         self.send_button.set_sensitive(True)
         self.send_button.set_label("Send")
 
