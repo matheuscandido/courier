@@ -52,7 +52,7 @@ class Sidebar(Gtk.ScrolledWindow):
             self.model_store.set(root_iter, TYPE, TREE_COLLECTION, METHOD, "", NAME, collection["info"]["name"])
 
             for item in collection["item"]:
-                self.iterative_collection_parser(self.model_store, root_iter, item)
+                self.recursive_collection_parser(self.model_store, root_iter, item)
 
         self.tree_view.set_model(self.model_store)
 
@@ -61,7 +61,7 @@ class Sidebar(Gtk.ScrolledWindow):
 
 
 
-    def iterative_collection_parser(self, model_store: Gtk.TreeStore, parent_iter: Gtk.TreeIter, item: dict):
+    def recursive_collection_parser(self, model_store: Gtk.TreeStore, parent_iter: Gtk.TreeIter, item: dict):
         if "request" in item:
             # item is a request
             item_iter = model_store.append(parent_iter)
@@ -80,7 +80,7 @@ class Sidebar(Gtk.ScrolledWindow):
                 NAME, item["name"],
                 REQUEST_JSON_STRING, "")
             for child in item["item"]:
-                self.iterative_collection_parser(
+                self.recursive_collection_parser(
                     model_store=model_store,
                     parent_iter=item_iter,
                     item=child
