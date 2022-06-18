@@ -1,14 +1,13 @@
 ## Courier - A Postman-like HTTP client in GTK+3
 
 ### Priority
-- [x] Load collections into a proper tree view on sidebar
-    - [x] Pretty renderer for colored method verbs
-    - [x] Collection v2.1 full spec parser
-    - [ ] Link treestore with collection dict in memory to open requests filled
-- [x] Click on request in the sidebar and open it on a new tab
-- [ ] Editing headers table and saving them on disk
-- [ ] Editing and saving open requests
-- [ ] Renaming requests and folders
+- [ ] Add info property to treestore model
+- [ ] Get collection name from info property
+- [ ] Create method that converts treestire iter to dict
+- [ ] Create method that writes dict to file on disk with postman_id as filename.json
+- [ ] Write collection to file on importing using previously created method
+- [ ] Add save button that writes current state of tree store model to files (overwriting existing ones)
+- [ ] Detect changes to request tab and indicate unsaved change with something on the tab handle
 
 ### Secondary
 - [ ] Add proper exception handling everywhere
