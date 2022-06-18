@@ -24,6 +24,7 @@ from .request_panel import RequestPanel
 from .sidebar import Sidebar
 
 import threading
+import json
 
 DEFAULT_SPACING = 5
 
@@ -56,6 +57,9 @@ class CourierWindow(Gtk.ApplicationWindow):
         self.collection_manager = CollectionManager()
         self.sidebar = Sidebar(self.collection_manager, self)
         self.sidebar.set_visible(True)
+
+        collections = self.collection_manager.load_collections_from_disk()
+        self.sidebar.add_collections_to_model(collections)
         
         self.hpaned.pack1(self.sidebar, False, False)
         self.hpaned.pack2(self.tab_panel, True, False)
@@ -104,5 +108,6 @@ class CourierWindow(Gtk.ApplicationWindow):
         dialog.add_filter(filter_any)
 
     def _import_new_collection(self, file: str):
-        self.collection_manager.load_new_collection(file)
-        self.sidebar.reload_collections()
+        self.sidebar.add_collections_to_model(
+            [self.collection_manager.load_collection(file)]
+            )
