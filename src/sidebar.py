@@ -32,24 +32,24 @@ class Sidebar(Gtk.ScrolledWindow):
 
     def setup_tree_view(self):
         renderer = Gtk.CellRendererText.new()
-        column = Gtk.TreeViewColumn("Method", renderer, text=METHOD)
+        column = Gtk.TreeViewColumn("Method", renderer, text=constants.METHOD)
         column.set_cell_data_func(renderer, self.cell_data_method_column)
         self.tree_view.append_column(column)
 
         renderer = Gtk.CellRendererText.new()
-        column = Gtk.TreeViewColumn("Name", renderer, text=NAME)
+        column = Gtk.TreeViewColumn("Name", renderer, text=constants.NAME)
         self.tree_view.append_column(column)
 
     def cell_data_method_column(self, column, renderer, model, iter, data):
-        (method,) = model.get(iter, METHOD)
+        (method,) = model.get(iter, constants.METHOD)
         renderer.props.foreground = self.get_method_color(method)
 
     def on_row_activated_signal(self, treeview: Gtk.TreeView, path: Gtk.TreePath, column: Gtk.TreeViewColumn):
         model: Gtk.TreeModel = treeview.get_model()
         iter = model.get_iter(path)
         if iter:
-            (row_type, method, name, request_json_string) = model.get(iter, TYPE, METHOD, NAME,  REQUEST_JSON_STRING)
-            if row_type == TREE_COLLECTION:
+            (row_type, method, name, request_json_string) = model.get(iter, constants.TYPE, constants.METHOD, constants.NAME,  constants.REQUEST_JSON_STRING)
+            if row_type == constants.TREE_COLLECTION:
                 return
 
             if len(name) > 15:
@@ -71,8 +71,8 @@ class Sidebar(Gtk.ScrolledWindow):
             self.window.tab_panel.new_tab(method, name, req_panel)
 
     def get_method_color(self, method: str) -> str:
-        if method in METHOD_COLORS:
-            return METHOD_COLORS[method]
+        if method in constants.METHOD_COLORS:
+            return constants.METHOD_COLORS[method]
         else:
             return "#FFFFFF"
 

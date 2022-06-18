@@ -5,14 +5,14 @@ import logging
 from typing import List
 
 from gi.repository import Gtk, GObject
-from .constants import *
+from . import constants as consts
 
 class CollectionManager:
 
     def __init__(self) -> None:
         # Check if coutier dir exists, creates if not
-        if not os.path.exists(CONFIG_PATH):
-            os.mkdir(CONFIG_PATH)
+        if not os.path.exists(consts.CONFIG_PATH):
+            os.mkdir(consts.CONFIG_PATH)
             logging.debug("config path created")
         else:
             logging.debug("config path already exists")
@@ -21,9 +21,9 @@ class CollectionManager:
         self.colletions: List[dict] = []
 
     def load_all_collections(self) -> List[dict]:
-        json_files = [f for f in os.listdir(CONFIG_PATH) if f.endswith(".json")]
+        json_files = [f for f in os.listdir(consts.CONFIG_PATH) if f.endswith(".json")]
         for fl in json_files:
-            with open(os.path.join(CONFIG_PATH, fl)) as json_file:
+            with open(os.path.join(consts.CONFIG_PATH, fl)) as json_file:
                 json_content = json.load(json_file)
                 self.colletions.append(json_content)
         logging.debug("collections imported: " + str(self.colletions))
@@ -38,7 +38,7 @@ class CollectionManager:
 
         for collection in self.colletions:
             root_iter: Gtk.TreeIter = model_store.append(None)
-            model_store.set(root_iter, TYPE, TREE_COLLECTION, METHOD, "", NAME, collection["info"]["name"])
+            model_store.set(root_iter, consts.TYPE, consts.TREE_COLLECTION, consts.METHOD, "", consts.NAME, collection["info"]["name"])
 
             for item in collection["item"]:
                 self._recursive_collection_parser(model_store, root_iter, item)
@@ -53,19 +53,19 @@ class CollectionManager:
                 # item is a request
                 item_iter = model_store.append(parent_iter)
                 model_store.set(item_iter,
-                    TYPE, TREE_REQUEST,
-                    METHOD, item["request"]["method"],
-                    NAME, item["name"],
-                    REQUEST_JSON_STRING, json.dumps(item))
+                    consts.TYPE, consts.TREE_REQUEST,
+                    consts.METHOD, item["request"]["method"],
+                    consts.NAME, item["name"],
+                    consts.REQUEST_JSON_STRING, json.dumps(item))
                 return
             else:
                 # item is a folder
                 item_iter = model_store.append(parent_iter)
                 model_store.set(item_iter,
-                    TYPE, TREE_COLLECTION,
-                    METHOD, "",
-                    NAME, item["name"],
-                    REQUEST_JSON_STRING, "")
+                    consts.TYPE, consts.TREE_COLLECTION,
+                    consts.METHOD, "",
+                    consts.NAME, item["name"],
+                    consts.REQUEST_JSON_STRING, "")
                 for child in item["item"]:
                     self._recursive_collection_parser(
                         model_store=model_store,
