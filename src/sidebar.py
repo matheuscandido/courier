@@ -7,22 +7,6 @@ from json import dumps, loads
 
 import logging
 
-TYPE = 0
-METHOD = 1
-NAME = 2
-REQUEST_JSON_STRING = 3
-
-TREE_COLLECTION = 0
-TREE_REQUEST = 1
-
-METHOD_COLORS = {
-    "GET": "#22FF00",
-    "POST": "#FFEE00",
-    "PUT": "#0055FF",
-    "PATCH": "#000000",
-    "DELETE": "#FF0000"
-}
-
 @Gtk.Template(resource_path='/com/mcandido/Courier/ui/sidebar.ui')
 class Sidebar(Gtk.ScrolledWindow):
     __gtype_name__ = 'Sidebar'
@@ -40,52 +24,12 @@ class Sidebar(Gtk.ScrolledWindow):
         self.tree_view.connect("row-activated", self.on_row_activated_signal)
 
         # Type, Method, Method
-        self.model_store = Gtk.TreeStore.new((
-            GObject.TYPE_BOOLEAN, # type
-            GObject.TYPE_STRING,  # method
-            GObject.TYPE_STRING,  # name
-            GObject.TYPE_STRING,  # request json string
-        ))
-
-        for collection in self.collection_manager.colletions:
-            root_iter: Gtk.TreeIter = self.model_store.append(None)
-            self.model_store.set(root_iter, TYPE, TREE_COLLECTION, METHOD, "", NAME, collection["info"]["name"])
-
-            for item in collection["item"]:
-                self.recursive_collection_parser(self.model_store, root_iter, item)
-
+        self.model_store = self.collection_manager.get_collections_tree_store()
         self.tree_view.set_model(self.model_store)
 
         self.add(self.tree_view)
         self.show_all()
 
-
-
-    def recursive_collection_parser(self, model_store: Gtk.TreeStore, parent_iter: Gtk.TreeIter, item: dict):
-        if "request" in item:
-            # item is a request
-            item_iter = model_store.append(parent_iter)
-            model_store.set(item_iter,
-                TYPE, TREE_REQUEST,
-                METHOD, item["request"]["method"],
-                NAME, item["name"],
-                REQUEST_JSON_STRING, dumps(item))
-            return
-        else:
-            # item is a folder
-            item_iter = model_store.append(parent_iter)
-            model_store.set(item_iter,
-                TYPE, TREE_COLLECTION,
-                METHOD, "",
-                NAME, item["name"],
-                REQUEST_JSON_STRING, "")
-            for child in item["item"]:
-                self.recursive_collection_parser(
-                    model_store=model_store,
-                    parent_iter=item_iter,
-                    item=child
-                )
-    
     def setup_tree_view(self):
         renderer = Gtk.CellRendererText.new()
         column = Gtk.TreeViewColumn("Method", renderer, text=METHOD)
