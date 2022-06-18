@@ -1,7 +1,6 @@
 from pathlib import Path
 import json
 import os
-import logging
 from typing import List
 
 from gi.repository import Gtk, GObject
@@ -10,23 +9,22 @@ from . import constants as consts
 class CollectionManager:
 
     def __init__(self) -> None:
+        self.collections: List[dict] = []
+        
         # Check if coutier dir exists, creates if not
         if not os.path.exists(consts.CONFIG_PATH):
             os.mkdir(consts.CONFIG_PATH)
-            logging.debug("config path created")
-        else:
-            logging.debug("config path already exists")
-
-        # Loads all .json collections listed there
-        self.colletions: List[dict] = []
 
     def load_all_collections(self) -> List[dict]:
         json_files = [f for f in os.listdir(consts.CONFIG_PATH) if f.endswith(".json")]
         for fl in json_files:
             with open(os.path.join(consts.CONFIG_PATH, fl)) as json_file:
                 json_content = json.load(json_file)
-                self.colletions.append(json_content)
-        logging.debug("collections imported: " + str(self.colletions))
+                self.collections.append(json_content)
+
+    def load_new_collection(self, new_collection: str):
+        json_content = json.loads(new_collection)
+        self.collections.append(json_content)
 
     def get_collections_tree_store(self) -> Gtk.TreeStore:
         model_store = Gtk.TreeStore.new((
@@ -36,7 +34,7 @@ class CollectionManager:
             GObject.TYPE_STRING,  # request json string
         ))
 
-        for collection in self.colletions:
+        for collection in self.collections:
             root_iter: Gtk.TreeIter = model_store.append(None)
             model_store.set(root_iter, consts.TYPE, consts.TREE_COLLECTION, consts.METHOD, "", consts.NAME, collection["info"]["name"])
 

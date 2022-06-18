@@ -15,12 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import Gtk
+from logging import log
+from gi.repository import Gtk, Gio
 from .collection_manager import CollectionManager
 
 from .tab_panel import TabPanel
 from .request_panel import RequestPanel
 from .sidebar import Sidebar
+
+import threading
 
 DEFAULT_SPACING = 5
 
@@ -41,6 +44,7 @@ class CourierWindow(Gtk.ApplicationWindow):
 
     header_bar = Gtk.Template.Child()
     hpaned = Gtk.Template.Child()
+    import_button = Gtk.Template.Child()
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -60,3 +64,45 @@ class CourierWindow(Gtk.ApplicationWindow):
     def on_new_tab_button_clicked(self, button: Gtk.Button):
         self.tab_panel.new_tab("GET", "New Request " + str(self.tab_panel.get_n_pages() + 1), RequestPanel())
 
+    @Gtk.Template.Callback()
+    def on_import_button_clicked(self, button: Gtk.Button):
+        dialog = Gtk.FileChooserDialog(title="Import Collection", parent=self, action=Gtk.FileChooserAction.OPEN)
+        dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+        self._add_filters(dialog)
+
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            file: Gio.File = dialog.get_file()
+            success , contents, etag_out = file.load_contents()
+
+            if success:
+                thread = threading.Thread(
+                    target=self._import_new_collection, 
+                    kwargs={"file": contents.decode('utf-8')}
+                    )
+                thread.daemon = True
+                thread.start()
+
+        elif response == Gtk.ResponseType.CANCEL:
+            print("Import canceled")
+        dialog.destroy()
+
+    def _add_filters(self, dialog):
+        filter_text = Gtk.FileFilter()
+        filter_text.set_name("Text files")
+        filter_text.add_mime_type("text/plain")
+        dialog.add_filter(filter_text)
+
+        filter_py = Gtk.FileFilter()
+        filter_py.set_name("JSON files")
+        filter_py.add_mime_type("text/x-json")
+        dialog.add_filter(filter_py)
+
+        filter_any = Gtk.FileFilter()
+        filter_any.set_name("Any files")
+        filter_any.add_pattern("*")
+        dialog.add_filter(filter_any)
+
+    def _import_new_collection(self, file: str):
+        self.collection_manager.load_new_collection(file)
+        self.sidebar.reload_collections()

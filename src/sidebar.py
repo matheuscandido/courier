@@ -30,6 +30,10 @@ class Sidebar(Gtk.ScrolledWindow):
         self.add(self.tree_view)
         self.show_all()
 
+    def reload_collections(self):
+        self.model_store = self.collection_manager.get_collections_tree_store()
+        self.tree_view.set_model(self.model_store)
+
     def setup_tree_view(self):
         renderer = Gtk.CellRendererText.new()
         column = Gtk.TreeViewColumn("Method", renderer, text=constants.METHOD)

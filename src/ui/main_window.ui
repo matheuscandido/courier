@@ -31,6 +31,7 @@
                     <object class="GtkButton" id="import_button">
                         <property name="visible">True</property>
                         <property name="label">Import</property>
+                        <signal name="clicked" handler="on_import_button_clicked"/>
                     </object>
                     <packing>
                         <property name="pack-type">start</property>
