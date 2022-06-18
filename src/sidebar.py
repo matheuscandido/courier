@@ -24,6 +24,7 @@ class Sidebar(Gtk.ScrolledWindow):
 
         self.model_store = Gtk.TreeStore.new((
             GObject.TYPE_BOOLEAN, # type
+            GObject.TYPE_STRING,  # info
             GObject.TYPE_STRING,  # method
             GObject.TYPE_STRING,  # name
             GObject.TYPE_STRING,  # request json string
@@ -87,7 +88,12 @@ class Sidebar(Gtk.ScrolledWindow):
     def add_collections_to_model(self, collections: List[dict]):
         for collection in collections:
             root_iter: Gtk.TreeIter = self.model_store.append(None)
-            self.model_store.set(root_iter, consts.TYPE, consts.TREE_COLLECTION, consts.METHOD, "", consts.NAME, collection["info"]["name"])
+            self.model_store.set(root_iter, 
+                consts.TYPE, consts.TREE_COLLECTION, 
+                consts.INFO, json.dumps(collection["info"]), 
+                consts.METHOD, "", 
+                consts.NAME, collection["info"]["name"]
+            )
 
             for item in collection["item"]:
                 self._recursive_collection_parser(self.model_store, root_iter, item)
