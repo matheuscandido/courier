@@ -55,7 +55,7 @@ class CourierWindow(Gtk.ApplicationWindow):
         self.tab_panel.new_tab("GET", "New Request", RequestPanel())
 
         self.collection_manager = CollectionManager()
-        self.sidebar = Sidebar(self.collection_manager, self)
+        self.sidebar = Sidebar(self)
         self.sidebar.set_visible(True)
 
         collections = self.collection_manager.load_collections_from_disk()

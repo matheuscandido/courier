@@ -11,12 +11,10 @@ import logging
 class Sidebar(Gtk.ScrolledWindow):
     __gtype_name__ = 'Sidebar'
 
-    def __init__(self, collection_manager: CollectionManager, window: Gtk.ApplicationWindow):
+    def __init__(self, window: Gtk.ApplicationWindow):
         super().__init__()
         self.window = window
         self.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-
-        self.collection_manager = collection_manager
 
         self.tree_view = Gtk.TreeView.new()
         self.setup_tree_view()
@@ -35,9 +33,9 @@ class Sidebar(Gtk.ScrolledWindow):
         self.add(self.tree_view)
         self.show_all()
 
-    def reload_collections(self):
-        self.model_store = self.collection_manager.get_collections_tree_store()
-        self.tree_view.set_model(self.model_store)
+    # def reload_collections(self):
+    #     self.model_store = self.collection_manager.get_collections_tree_store()
+    #     self.tree_view.set_model(self.model_store)
 
     def setup_tree_view(self):
         renderer = Gtk.CellRendererText.new()
