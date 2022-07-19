@@ -12,8 +12,9 @@ class Sidebar(Gtk.ScrolledWindow):
     __gtype_name__ = 'Sidebar'
 
     def __init__(self, window: Gtk.ApplicationWindow):
+        from .window import CourierWindow
         super().__init__()
-        self.window = window
+        self.window: CourierWindow = window
         self.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
 
         self.tree_view = Gtk.TreeView.new()
@@ -47,6 +48,9 @@ class Sidebar(Gtk.ScrolledWindow):
         column = Gtk.TreeViewColumn("Name", renderer, text=consts.NAME)
         self.tree_view.append_column(column)
 
+    def store_data_to_disk(self):
+        self.window.save_model_store(self.model_store)
+
     def cell_data_method_column(self, column, renderer, model, iter, data):
         (method,) = model.get(iter, consts.METHOD)
         renderer.props.foreground = self.get_method_color(method)
@@ -75,6 +79,7 @@ class Sidebar(Gtk.ScrolledWindow):
                 url=request_json_dict["request"]["url"]["raw"],
                 body=body,
                 headers=headers,
+                sidebar=self,
                 tree_store=model,
                 tree_iter=iter)
             self.window.tab_panel.new_tab(method, name, req_panel)

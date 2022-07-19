@@ -55,7 +55,7 @@ class CourierWindow(Gtk.ApplicationWindow):
         self.tab_panel.new_tab("GET", "New Request", RequestPanel())
 
         self.collection_manager = CollectionManager()
-        self.sidebar = Sidebar(self)
+        self.sidebar = Sidebar(window=self)
         self.sidebar.set_visible(True)
 
         collections = self.collection_manager.load_collections_from_disk()
@@ -111,3 +111,6 @@ class CourierWindow(Gtk.ApplicationWindow):
         self.sidebar.add_collections_to_model(
             [self.collection_manager.load_collection(file)]
             )
+
+    def save_model_store(self, model_store: Gtk.TreeStore):
+        self.collection_manager.save_model_store_to_disk(model_store)

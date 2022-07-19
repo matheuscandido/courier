@@ -14,9 +14,11 @@ HEADERS_VALUE = 1
 class RequestPanel(Gtk.Paned):
     __gtype_name__ = 'RequestPanel'
 
-    def __init__(self, method: str = "GET", url: str = "", body: str = "", headers: list[tuple[str, str]] = None, tree_store: Gtk.TreeStore = None, tree_iter: Gtk.TreeIter = None):
+    def __init__(self, method: str = "GET", url: str = "", body: str = "", headers: list[tuple[str, str]] = None, 
+    sidebar = None, tree_store: Gtk.TreeStore = None, tree_iter: Gtk.TreeIter = None):
         from .request_handler import RequestHandler
         from .tab_panel import TabPanel, TabHandle
+        from .sidebar import Sidebar
         super().__init__()
         self.url_entry_field = None
         self.request_text_buffer = None
@@ -31,6 +33,7 @@ class RequestPanel(Gtk.Paned):
         self.notebook: TabPanel =None
         self.tree_store = tree_store
         self.tree_iter = tree_iter
+        self.sidebar: Sidebar = sidebar
 
         if body != "":
             self.request_text_buffer = self.create_gtk_source_view_buffer()
@@ -286,3 +289,4 @@ class RequestPanel(Gtk.Paned):
 
     def on_save_button_clicked(self, button: Gtk.Button):
         self._update_iter_data()
+        self.sidebar.store_data_to_disk()
