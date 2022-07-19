@@ -33,6 +33,9 @@ class TabHandle(Gtk.HBox):
     def set_method(self, method: str):
         self.title.set_label(self.build_tite(method, self.name))
 
+    def get_name(self) -> str:
+        return self.name
+
     def set_name(self, name: str):
         self.title.set_label(self.build_tite(self.method, name))
 

@@ -4,7 +4,7 @@ from gi.repository import Gtk, GtkSource, GObject, Pango, GLib
 
 import logging, json
 
-from . import constants
+from . import constants as consts
 from .request_handler import RequestHandler
 
 HEADERS_KEY = 0
@@ -14,13 +14,14 @@ HEADERS_VALUE = 1
 class RequestPanel(Gtk.Paned):
     __gtype_name__ = 'RequestPanel'
 
-    def __init__(self, method: str = "GET", url: str = "", body: str = "", headers: list[tuple[str, str]] = None):
+    def __init__(self, method: str = "GET", url: str = "", body: str = "", headers: list[tuple[str, str]] = None, tree_store: Gtk.TreeStore = None, tree_iter: Gtk.TreeIter = None):
         from .request_handler import RequestHandler
         from .tab_panel import TabPanel, TabHandle
         super().__init__()
         self.url_entry_field = None
         self.request_text_buffer = None
         self.send_button = None
+        self.save_button = None
         self.response_text_editor = None
         self.set_orientation(Gtk.Orientation.VERTICAL)
         self.set_position(300)
@@ -28,6 +29,8 @@ class RequestPanel(Gtk.Paned):
 
         self.tab_handle: TabHandle = None
         self.notebook: TabPanel =None
+        self.tree_store = tree_store
+        self.tree_iter = tree_iter
 
         if body != "":
             self.request_text_buffer = self.create_gtk_source_view_buffer()
@@ -64,7 +67,7 @@ class RequestPanel(Gtk.Paned):
         text_editor.set_auto_indent(True)
         text_editor.set_show_line_numbers(True)
         text_editor.set_wrap_mode(Gtk.WrapMode.WORD)
-        text_editor.set_indent_width(constants.DEFAULT_INDENT_WIDTH)
+        text_editor.set_indent_width(consts.DEFAULT_INDENT_WIDTH)
 
         return text_editor
 
@@ -87,11 +90,11 @@ class RequestPanel(Gtk.Paned):
         box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 0)
 
         self.method_combo_box = Gtk.ComboBoxText.new()
-        self.method_combo_box.append(constants.METHOD_GET, constants.METHOD_GET.upper())
-        self.method_combo_box.append(constants.METHOD_POST, constants.METHOD_POST.upper())
-        self.method_combo_box.append(constants.METHOD_PUT, constants.METHOD_PUT.upper())
-        self.method_combo_box.append(constants.METHOD_PATCH, constants.METHOD_PATCH.upper())
-        self.method_combo_box.append(constants.METHOD_DELETE, constants.METHOD_DELETE.upper())
+        self.method_combo_box.append(consts.METHOD_GET, consts.METHOD_GET.upper())
+        self.method_combo_box.append(consts.METHOD_POST, consts.METHOD_POST.upper())
+        self.method_combo_box.append(consts.METHOD_PUT, consts.METHOD_PUT.upper())
+        self.method_combo_box.append(consts.METHOD_PATCH, consts.METHOD_PATCH.upper())
+        self.method_combo_box.append(consts.METHOD_DELETE, consts.METHOD_DELETE.upper())
         self.method_combo_box.connect("changed", self.on_method_combo_box_changed)
 
         self.url_entry_field = Gtk.Entry()
@@ -102,15 +105,19 @@ class RequestPanel(Gtk.Paned):
         self.send_button: Gtk.Button = Gtk.Button.new_with_label("Send")
         self.send_button.connect("clicked", self.on_send_button_clicked)
 
-        box.pack_start(self.method_combo_box, False, False, constants.DEFAULT_SPACING)
+        self.save_button: Gtk.Button = Gtk.Button.new_with_label("Save")
+        self.save_button.connect("clicked", self.on_save_button_clicked)
+
+        box.pack_start(self.method_combo_box, False, False, consts.DEFAULT_SPACING)
         box.pack_start(self.url_entry_field, True, True, 0)
-        box.pack_start(self.send_button, False, False, constants.DEFAULT_SPACING)
+        box.pack_start(self.send_button, False, False, consts.DEFAULT_SPACING)
+        box.pack_start(Gtk.Separator.new(Gtk.Orientation.VERTICAL), False, False, consts.DEFAULT_SPACING)
+        box.pack_start(self.save_button, False, False, consts.DEFAULT_SPACING)
 
         return box
 
     def create_notebook(self) -> Gtk.Widget:
-        notebook = Gtk.Notebook.new()
-        notebook.append_page(self.create_headers_page(self.headers_store), Gtk.Label.new("Headers"))
+        notebook = Gtk.Notebook.new()       
 
         request_text_editor = self.create_text_editor()
         if self.request_text_buffer is None:
@@ -122,6 +129,8 @@ class RequestPanel(Gtk.Paned):
         scrolled_window.add(request_text_editor)
 
         notebook.append_page(scrolled_window, Gtk.Label.new("Body"))
+
+        notebook.append_page(self.create_headers_page(self.headers_store), Gtk.Label.new("Headers"))
         return notebook
 
     def on_headers_selection_changed(self, selection):
@@ -135,9 +144,9 @@ class RequestPanel(Gtk.Paned):
         hbox = Gtk.HBox.new(False, 0)
         add_button = Gtk.Button.new_with_label("Add Header")
         add_button.connect("clicked", self.on_add_header_button_clicked, store)
-        hbox.pack_end(add_button, expand=False, fill=False, padding=constants.DEFAULT_SPACING)
+        hbox.pack_end(add_button, expand=False, fill=False, padding=consts.DEFAULT_SPACING)
 
-        vbox.pack_start(hbox, expand=False, fill=False, padding=constants.DEFAULT_SPACING)
+        vbox.pack_start(hbox, expand=False, fill=False, padding=consts.DEFAULT_SPACING)
 
         tree_view = Gtk.TreeView(model=store)
 
@@ -166,7 +175,7 @@ class RequestPanel(Gtk.Paned):
         select = tree_view.get_selection()
         select.connect("changed", self.on_headers_selection_changed)
 
-        vbox.pack_end(tree_view, expand=True, fill=True, padding=constants.DEFAULT_SPACING)
+        vbox.pack_end(tree_view, expand=True, fill=True, padding=consts.DEFAULT_SPACING)
 
         return vbox
 
@@ -183,11 +192,11 @@ class RequestPanel(Gtk.Paned):
 
     def get_method_number(self, method: str) -> int:
         methods_list = (
-            constants.METHOD_GET.upper(),
-            constants.METHOD_POST.upper(),
-            constants.METHOD_PUT.upper(),
-            constants.METHOD_PATCH.upper(),
-            constants.METHOD_DELETE.upper())
+            consts.METHOD_GET.upper(),
+            consts.METHOD_POST.upper(),
+            consts.METHOD_PUT.upper(),
+            consts.METHOD_PATCH.upper(),
+            consts.METHOD_DELETE.upper())
 
         for index, m in enumerate(methods_list):
             if method == m:
@@ -200,6 +209,33 @@ class RequestPanel(Gtk.Paned):
 
     def set_notebook_ref(self, notebook):
         self.notebook = notebook
+
+    def _get_request_body_text(self) -> str:
+        return self.request_text_buffer.get_text(self.request_text_buffer.get_start_iter(),
+            self.request_text_buffer.get_end_iter(), 
+            False)
+
+    def _update_iter_data(self):
+        (request_json_string_before,) = self.tree_store.get(self.tree_iter, consts.REQUEST_JSON_STRING)
+        request_json_dict = json.loads(request_json_string_before)
+        
+        if "body" in request_json_dict:
+            request_json_dict["request"]["body"]["raw"] = self._get_request_body_text()
+        else:
+            request_json_dict["request"]["body"] = {
+                "raw": self._get_request_body_text()
+            }
+        
+        request_json_dict["request"]["url"]["raw"] = self.url_entry_field.get_text()
+
+        request_json_str = json.dumps(request_json_dict)
+
+        Gtk.TreeStore.set(self.tree_store, self.tree_iter, 
+            consts.TYPE, consts.TREE_REQUEST,
+            consts.METHOD, self.method,
+            consts.NAME, self.tab_handle.get_name(),
+            consts.REQUEST_JSON_STRING, request_json_str)
+
 
     ###########
     # SIGNALS #
@@ -221,8 +257,7 @@ class RequestPanel(Gtk.Paned):
         rh = RequestHandler(
             self.method,
             self.url_entry_field.get_text(),
-            self.request_text_buffer.get_text(self.request_text_buffer.get_start_iter(),
-                                              self.request_text_buffer.get_end_iter(), False),
+            self._get_request_body_text(),
             self.get_headers()
         )
         res = rh.send()
@@ -249,3 +284,5 @@ class RequestPanel(Gtk.Paned):
         
         return headers
 
+    def on_save_button_clicked(self, button: Gtk.Button):
+        self._update_iter_data()

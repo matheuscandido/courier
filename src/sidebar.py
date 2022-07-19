@@ -55,7 +55,7 @@ class Sidebar(Gtk.ScrolledWindow):
         model: Gtk.TreeModel = treeview.get_model()
         iter = model.get_iter(path)
         if iter:
-            (row_type, method, name, request_json_string) = model.get(iter, consts.TYPE, consts.METHOD, consts.NAME,  consts.REQUEST_JSON_STRING)
+            (row_type, method, name, request_json_string) = model.get(iter, consts.TYPE, consts.METHOD, consts.NAME, consts.REQUEST_JSON_STRING)
             if row_type == consts.TREE_COLLECTION:
                 return
 
@@ -74,7 +74,9 @@ class Sidebar(Gtk.ScrolledWindow):
                 method=method,
                 url=request_json_dict["request"]["url"]["raw"],
                 body=body,
-                headers=headers)
+                headers=headers,
+                tree_store=model,
+                tree_iter=iter)
             self.window.tab_panel.new_tab(method, name, req_panel)
 
     def get_method_color(self, method: str) -> str:
